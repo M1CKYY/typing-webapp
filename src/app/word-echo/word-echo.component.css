@@ -1,0 +1,15 @@
+span {
+  font-family: "Ubuntu Mono", monospace;
+}
+
+.incorrect {
+  color: red;
+}
+
+.correct {
+  color: gray;
+}
+
+.nan {
+  color: black;
+}

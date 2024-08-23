@@ -1,0 +1,30 @@
+<link ref="stylesheet" href="word-echo.component.css" />
+<p>word-echo works!</p>
+<app-wordlist (wordsLoaded)="onWordsLoaded($event)"></app-wordlist>
+<div>
+  @for(char of charList; track char; let i = $index) {
+  <span
+    [class.nan]="charList[i].status === 'untyped'"
+    [class.incorrect]="charList[i].status === 'incorrect'"
+    [class.correct]="charList[i].status === 'correct'"
+    >{{ charList[i].char }}</span
+  >
+  }
+  <br />
+  <span>inputText: {{ inputText }}</span>
+  <br />
+  <span>word: {{ word }}</span>
+  <br />
+  <span>rawInput: {{ rawInput }}</span>
+  <br />
+  <span>
+    @for (char of incorrectChars; track char) {
+    {{ char.char }}
+    }</span
+  >
+  <input
+    type="hidden"
+    (window:keydown.backspace)="backspace()"
+    (window:keydown.escape)="clear()"
+  />
+</div>
