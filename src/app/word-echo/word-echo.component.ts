@@ -1,4 +1,4 @@
-import { Component, ViewChild, AfterViewInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Word } from '../models/word';
@@ -20,13 +20,12 @@ type Char = {
 })
 export class WordEchoComponent {
   // Will be read from json later on as word objects
-
   wordList: Word[] = [];  // This will be populated with words from WordlistComponent
 
   // Method to handle the wordsLoaded event from WordlistComponent
   onWordsLoaded(words: Word[]) {
     this.wordList = words;
-    this.populateWordList()
+    this.populateCharList()
     console.log('Words received in WordEchoComponent:', this.wordList);
   }
   error: any;
@@ -42,18 +41,19 @@ export class WordEchoComponent {
 
   wordIndex: number;
   charIndex: number;
+  useOpenBox: boolean;
   charList: Char[];
   incorrectChars: Char[];
 
 
-  populateWordList() {
+  populateCharList() {
     for (let i = 0; i < this.wordList.length; i++) {
       for (let j = 0; j < this.wordList[i].word.length; j++) {
         var char: Char = { wordIndex: i, charIndex: j, char: this.wordList[i].word[j], status: "untyped" };
         this.charList.push(char)
       }
       if (i !== this.wordList.length - 1) {
-        var char: Char = { wordIndex: null, charIndex: null, char: "␣", status: "untyped" }
+        var char: Char = { wordIndex: null, charIndex: null, char: " ", status: "untyped" }
         this.charList.push(char)
       }
     }
@@ -65,11 +65,10 @@ export class WordEchoComponent {
     this.inputText = ''
     this.rawInput = ''
     this.wordIndex = 0
-    this.charIndex = 0;
+    this.charIndex = 0
     this.charList = []
-
-
     this.incorrectChars = []
+    this.useOpenBox = true
   }
 
   increaseWordIndex() {
@@ -94,51 +93,32 @@ export class WordEchoComponent {
 
   @HostListener('document:keypress', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
-    console.log(this.wordList)
     if (!(event.key === 'Enter')) {
-      if (event.key === ' ') {
-        this.rawInput += "␣";
-
-        if (this.word === this.wordList[this.wordIndex].word) {
-          if (this.charList[this.inputText.length].status === "untyped") {
-            this.charList[this.inputText.length].status === "marked" ? "marked" : "correct";
-          } else {
-            this.charList[this.inputText.length].status = "correct";
-          }
-
+      this.rawInput += event.key
+      if (event.key === this.charList[this.inputText.length].char) {
+        if (this.charList[this.inputText.length].status !== "untyped") {
+          this.charList[this.inputText.length].status === "marked" ? "marked" : "correct";
+        } else {
+          this.charList[this.inputText.length].status = "correct";
+        }
+        if (event.key === " " && this.word === this.wordList[this.wordIndex].word) {
           this.word = '';
           this.charIndex = 0;
           this.wordIndex += 1;
-          this.inputText += '␣';
-
-          if (this.charList[this.inputText.length - 1].status === "marked") {
-            this.charList[this.inputText.length - 1].status = "incorrect";
-          }
-
         } else {
-          this.charList[this.inputText.length].status === "marked";
-          this.incorrectChars.push(this.charList[this.inputText.length])
-        }
 
-      } else {
-        this.rawInput += event.key
-        if (event.key === this.charList[this.inputText.length].char) {
-          if (this.charList[this.inputText.length].status !== "untyped") {
-            this.charList[this.inputText.length].status === "marked" ? "marked" : "correct";
-          } else {
-            this.charList[this.inputText.length].status = "correct";
-          }
-          this.inputText += event.key
           this.word += event.key;
           this.charIndex += 1;
-          if (this.charList[this.inputText.length - 1].status === "marked") {
-            this.charList[this.inputText.length - 1].status = "incorrect"
-          }
-        } else {
-          this.charList[this.inputText.length].status = "marked";
-          this.incorrectChars.push(this.charList[this.inputText.length])
         }
+        this.inputText += event.key
+        if (this.charList[this.inputText.length - 1].status === "marked") {
+          this.charList[this.inputText.length - 1].status = "incorrect"
+        }
+      } else {
+        this.charList[this.inputText.length].status = "marked";
+        this.incorrectChars.push(this.charList[this.inputText.length])
       }
     }
   }
 }
+
