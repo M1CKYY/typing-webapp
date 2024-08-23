@@ -2,19 +2,14 @@ import { Component } from '@angular/core';
 import { HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Word } from '../models/word';
+import { Char } from '../models/char';
 import { WordlistComponent } from '../wordlist/wordlist.component';
-
-type Char = {
-  wordIndex: number | null;
-  charIndex: number | null;
-  char: string;
-  status: "untyped" | "correct" | "marked" | "incorrect";
-}
+import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-word-echo',
   standalone: true,
-  imports: [FormsModule, WordlistComponent],
+  imports: [FormsModule, WordlistComponent, NgClass],
   templateUrl: './word-echo.component.html',
   styleUrl: './word-echo.component.css'
 })
@@ -41,9 +36,20 @@ export class WordEchoComponent {
 
   wordIndex: number;
   charIndex: number;
-  useOpenBox: boolean;
+  useSpace: boolean;
+  newWord: boolean;
   charList: Char[];
   incorrectChars: Char[];
+  toggleSpace() {
+    this.useSpace = !this.useSpace;
+  }
+  toggleNewWord() {
+    this.newWord = !this.newWord
+  }
+
+  replaceSpacesWithOpenBox() {
+    this.useSpace = !this.useSpace;
+  }
 
 
   populateCharList() {
@@ -67,8 +73,9 @@ export class WordEchoComponent {
     this.wordIndex = 0
     this.charIndex = 0
     this.charList = []
+    this.newWord = false;
     this.incorrectChars = []
-    this.useOpenBox = true
+    this.useSpace = false
   }
 
   increaseWordIndex() {
@@ -87,6 +94,8 @@ export class WordEchoComponent {
     this.charIndex = 0;
     this.word = "";
     this.inputText = "";
+    this.rawInput = "";
+    this.incorrectChars = []
     this.charList.forEach(c => c.status = "untyped");
   }
 
@@ -101,18 +110,18 @@ export class WordEchoComponent {
         } else {
           this.charList[this.inputText.length].status = "correct";
         }
+        this.inputText += event.key
+        if (this.charList[this.inputText.length - 1].status === "marked") {
+          this.charList[this.inputText.length - 1].status = "incorrect"
+        }
+
         if (event.key === " " && this.word === this.wordList[this.wordIndex].word) {
           this.word = '';
           this.charIndex = 0;
           this.wordIndex += 1;
         } else {
-
           this.word += event.key;
           this.charIndex += 1;
-        }
-        this.inputText += event.key
-        if (this.charList[this.inputText.length - 1].status === "marked") {
-          this.charList[this.inputText.length - 1].status = "incorrect"
         }
       } else {
         this.charList[this.inputText.length].status = "marked";

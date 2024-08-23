@@ -1,6 +1,17 @@
 span {
   font-family: "Ubuntu Mono", monospace;
 }
+.container {
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  overflow-wrap: break-word;
+}
+.current-char {
+  border-bottom: 2px solid black;
+  padding-bottom: 2px;
+}
 
 .incorrect {
   color: red;
@@ -8,6 +19,9 @@ span {
 
 .correct {
   color: gray;
+}
+.word {
+  margin-right: -5px;
 }
 
 .nan {
