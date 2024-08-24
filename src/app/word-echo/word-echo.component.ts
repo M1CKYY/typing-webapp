@@ -17,13 +17,6 @@ export class WordEchoComponent {
   // Will be read from json later on as word objects
   wordList: Word[] = [];  // This will be populated with words from WordlistComponent
 
-  // Method to handle the wordsLoaded event from WordlistComponent
-  onWordsLoaded(words: Word[]) {
-    this.wordList = words;
-    this.populateCharList()
-    console.log('Words received in WordEchoComponent:', this.wordList);
-  }
-  error: any;
 
   // To know if word typed is correct and we can therefore go to the next
   word: string;
@@ -37,20 +30,25 @@ export class WordEchoComponent {
   wordIndex: number;
   charIndex: number;
   useSpace: boolean;
-  newWord: boolean;
   charList: Char[];
   incorrectChars: Char[];
-  toggleSpace() {
-    this.useSpace = !this.useSpace;
-  }
-  toggleNewWord() {
-    this.newWord = !this.newWord
+
+  constructor() {
+    this.word = ''
+    this.inputText = ''
+    this.rawInput = ''
+    this.wordIndex = 0
+    this.charIndex = 0
+    this.charList = []
+    this.incorrectChars = []
+    this.useSpace = false
   }
 
-  replaceSpacesWithOpenBox() {
-    this.useSpace = !this.useSpace;
+  // Method to handle the wordsLoaded event from WordlistComponent
+  onWordsLoaded(words: Word[]) {
+    this.wordList = words;
+    this.populateCharList()
   }
-
 
   populateCharList() {
     for (let i = 0; i < this.wordList.length; i++) {
@@ -64,41 +62,6 @@ export class WordEchoComponent {
       }
     }
   }
-
-
-  constructor() {
-    this.word = ''
-    this.inputText = ''
-    this.rawInput = ''
-    this.wordIndex = 0
-    this.charIndex = 0
-    this.charList = []
-    this.newWord = false;
-    this.incorrectChars = []
-    this.useSpace = false
-  }
-
-  increaseWordIndex() {
-    this.wordIndex += 1;
-  }
-
-  // Shouldnt be used (with current logic) as mistakes dont have to be deleted to continue typing
-  backspace() {
-    this.inputText = this.inputText.slice(0, -1)
-    this.word = this.word.slice(0, -1)
-    this.charIndex = this.charIndex > 0 ? this.charIndex - 1 : this.charIndex = 0
-  }
-
-  clear() {
-    this.wordIndex = 0;
-    this.charIndex = 0;
-    this.word = "";
-    this.inputText = "";
-    this.rawInput = "";
-    this.incorrectChars = []
-    this.charList.forEach(c => c.status = "untyped");
-  }
-
 
   @HostListener('document:keypress', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
@@ -128,6 +91,31 @@ export class WordEchoComponent {
         this.incorrectChars.push(this.charList[this.inputText.length])
       }
     }
+  }
+
+  clear() {
+    this.wordIndex = 0;
+    this.charIndex = 0;
+    this.word = "";
+    this.inputText = "";
+    this.rawInput = "";
+    this.incorrectChars = []
+    this.charList.forEach(c => c.status = "untyped");
+  }
+
+  toggleSpace() {
+    this.useSpace = !this.useSpace;
+  }
+
+  replaceSpacesWithOpenBox() {
+    this.useSpace = !this.useSpace;
+  }
+
+  // Shouldnt be used (with current logic) as mistakes dont have to be deleted to continue typing
+  backspace() {
+    this.inputText = this.inputText.slice(0, -1)
+    this.word = this.word.slice(0, -1)
+    this.charIndex = this.charIndex > 0 ? this.charIndex - 1 : this.charIndex = 0
   }
 }
 
