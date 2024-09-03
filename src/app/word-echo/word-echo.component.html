@@ -14,7 +14,7 @@
       [ngClass]="{ 'current-char': i === inputText.length }"
       >{{ charList[i].char }}</span
     >
-    } @else { @if (useSpace) {
+    } @else { @if (charList[i].char === " ") { @if (useSpace) {
     <span [ngClass]="{ 'current-char': i === inputText.length }">&nbsp;</span>
     } @else {
     <span
@@ -24,11 +24,20 @@
       [ngClass]="{ 'current-char': i === inputText.length }"
       >&#9251;</span
     >
-    } } }
+    } } @else {
+    <span
+      [class.nan]="charList[i].status === 'untyped'"
+      [class.incorrect]="charList[i].status === 'incorrect'"
+      [class.correct]="charList[i].status === 'correct'"
+      [ngClass]="{ 'current-char': i === inputText.length }"
+      >{{ charList[i].char }}</span
+    >
+    }} }
   </div>
-  <br />
 </div>
-<div class="debug">
+<br />
+<button (click)="toggleDiv()">Show/Hide Debug</button>
+<div *ngIf="showDebug" class="debug">
   <h3>Debug</h3>
   <span>inputText: {{ inputText }}</span>
   <br />
@@ -41,6 +50,7 @@
     {{ char.char }}
     }</span
   >
+
   <input
     type="hidden"
     (window:keydown.backspace)="backspace()"

@@ -1,6 +1,9 @@
+import { Char } from "./char";
+
 export interface Word {
     word: string;
     hands: string[];
     fingers: string[];
-    rightHandPercentage: number
+    rightHandPercentage: number;
+    chars: Char[]
 }

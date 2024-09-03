@@ -5,11 +5,14 @@ import { Word } from '../models/word';
 import { Char } from '../models/char';
 import { WordlistComponent } from '../wordlist/wordlist.component';
 import { NgClass } from '@angular/common';
+import { NgIf } from '@angular/common';
+import { ShuffledArrayDuplicatesService } from '../services/shuffled-array-duplicates.service';
+
 
 @Component({
   selector: 'app-word-echo',
   standalone: true,
-  imports: [FormsModule, WordlistComponent, NgClass],
+  imports: [FormsModule, WordlistComponent, NgClass, NgIf],
   templateUrl: './word-echo.component.html',
   styleUrl: './word-echo.component.css'
 })
@@ -32,8 +35,11 @@ export class WordEchoComponent {
   useSpace: boolean;
   charList: Char[];
   incorrectChars: Char[];
+  specialChars: string[];
+  specialCharsAmount: number;
+  showDebug: boolean;
 
-  constructor() {
+  constructor(private shuffle: ShuffledArrayDuplicatesService) {
     this.word = ''
     this.inputText = ''
     this.rawInput = ''
@@ -42,18 +48,37 @@ export class WordEchoComponent {
     this.charList = []
     this.incorrectChars = []
     this.useSpace = false
+    this.specialChars = ["!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "-", "=", "+", ",", ".", "/", "?", "\\", "{", "}", "[", "]", ";", ":", "'", "\""]
+    this.specialCharsAmount = 0
+    this.showDebug = true
   }
 
-  // Method to handle the wordsLoaded event from WordlistComponent
+  toggleDiv() {
+    this.showDebug = !this.showDebug;
+  }
+
+  // Receiver function for words, initialize each words chars array
   onWordsLoaded(words: Word[]) {
+    this.reset()
     this.wordList = words;
+    console.log(this.wordList)
     this.populateCharList()
+  }
+
+  reset() {
+    this.clear()
+    this.charList = []
   }
 
   populateCharList() {
     for (let i = 0; i < this.wordList.length; i++) {
       for (let j = 0; j < this.wordList[i].word.length; j++) {
         var char: Char = { wordIndex: i, charIndex: j, char: this.wordList[i].word[j], status: "untyped" };
+        this.charList.push(char)
+      }
+      var specialchars = this.shuffle.getRandomWords(this.specialChars, this.specialCharsAmount)
+      for (let i = 0; i < this.specialCharsAmount; i++) {
+        var char: Char = { wordIndex: null, charIndex: null, char: specialchars[i], status: "untyped" }
         this.charList.push(char)
       }
       if (i !== this.wordList.length - 1) {
@@ -74,6 +99,8 @@ export class WordEchoComponent {
           this.charList[this.inputText.length].status = "correct";
         }
         this.inputText += event.key
+
+
         if (this.charList[this.inputText.length - 1].status === "marked") {
           this.charList[this.inputText.length - 1].status = "incorrect"
         }
@@ -103,9 +130,6 @@ export class WordEchoComponent {
     this.charList.forEach(c => c.status = "untyped");
   }
 
-  toggleSpace() {
-    this.useSpace = !this.useSpace;
-  }
 
   replaceSpacesWithOpenBox() {
     this.useSpace = !this.useSpace;
@@ -113,6 +137,7 @@ export class WordEchoComponent {
 
   // Shouldnt be used (with current logic) as mistakes dont have to be deleted to continue typing
   backspace() {
+    this.charList[this.inputText.length - 1].status = "untyped"
     this.inputText = this.inputText.slice(0, -1)
     this.word = this.word.slice(0, -1)
     this.charIndex = this.charIndex > 0 ? this.charIndex - 1 : this.charIndex = 0

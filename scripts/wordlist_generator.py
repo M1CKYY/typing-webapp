@@ -52,7 +52,7 @@ def analyze_words(word_list):
             'word': word,
             'hands': list(hands_used),
             'fingers': list(fingers_used),
-            'right_hand_percentage': right_hand_percentage
+            'rightHandPercentage': right_hand_percentage
         })
     
     return analysis
