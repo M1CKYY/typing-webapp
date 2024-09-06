@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Word } from '../models/word';
@@ -7,16 +7,19 @@ import { WordlistComponent } from '../wordlist/wordlist.component';
 import { NgClass } from '@angular/common';
 import { NgIf } from '@angular/common';
 import { ShuffledArrayDuplicatesService } from '../services/shuffled-array-duplicates.service';
+import { CharComponent } from '../char-component/char-component.component';
+import { WpmComponentComponent } from '../wpm-component/wpm-component.component';
 
 
 @Component({
   selector: 'app-word-echo',
   standalone: true,
-  imports: [FormsModule, WordlistComponent, NgClass, NgIf],
+  imports: [FormsModule, WordlistComponent, NgClass, NgIf, CharComponent],
   templateUrl: './word-echo.component.html',
   styleUrl: './word-echo.component.css'
 })
 export class WordEchoComponent {
+  @ViewChild(WordlistComponent) wordListComponent!: WordlistComponent;
   // Will be read from json later on as word objects
   wordList: Word[] = [];  // This will be populated with words from WordlistComponent
 
@@ -35,9 +38,13 @@ export class WordEchoComponent {
   useSpace: boolean;
   charList: Char[];
   incorrectChars: Char[];
+  numbers: string[];
   specialChars: string[];
   specialCharsAmount: number;
+  numbersAmount: number;
   showDebug: boolean;
+  showNumberOptions: boolean;
+  showSpecialCharsOptions = false
 
   constructor(private shuffle: ShuffledArrayDuplicatesService) {
     this.word = ''
@@ -49,12 +56,34 @@ export class WordEchoComponent {
     this.incorrectChars = []
     this.useSpace = false
     this.specialChars = ["!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "-", "=", "+", ",", ".", "/", "?", "\\", "{", "}", "[", "]", ";", ":", "'", "\""]
+    this.numbers = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
     this.specialCharsAmount = 0
-    this.showDebug = true
+    this.numbersAmount = 3
+    this.showDebug = false
+    this.showNumberOptions = false
+    this.showSpecialCharsOptions = false
+  }
+
+  toggleSpecialCharsOptions() {
+    this.showSpecialCharsOptions = !this.showSpecialCharsOptions
+  }
+
+  onInputChange() {
+    this.wordListComponent.instanciateWords()
+  }
+
+  toggleNumberOptions() {
+    this.showNumberOptions = !this.showNumberOptions
   }
 
   toggleDiv() {
     this.showDebug = !this.showDebug;
+  }
+
+  disableSpacebar(event: KeyboardEvent): void {
+    if (event.code === 'Space' || event.key === ' ') {
+      event.preventDefault();  // Prevent spacebar action on the button
+    }
   }
 
   // Receiver function for words, initialize each words chars array
@@ -77,8 +106,13 @@ export class WordEchoComponent {
         this.charList.push(char)
       }
       var specialchars = this.shuffle.getRandomWords(this.specialChars, this.specialCharsAmount)
+      var numbers = this.shuffle.getRandomWords(this.numbers, this.numbersAmount)
       for (let i = 0; i < this.specialCharsAmount; i++) {
         var char: Char = { wordIndex: null, charIndex: null, char: specialchars[i], status: "untyped" }
+        this.charList.push(char)
+      }
+      for (let i = 0; i < this.numbersAmount; i++) {
+        var char: Char = { wordIndex: null, charIndex: null, char: numbers[i], status: "untyped" }
         this.charList.push(char)
       }
       if (i !== this.wordList.length - 1) {
@@ -92,7 +126,9 @@ export class WordEchoComponent {
   handleKeyboardEvent(event: KeyboardEvent) {
     if (!(event.key === 'Enter')) {
       this.rawInput += event.key
+
       if (event.key === this.charList[this.inputText.length].char) {
+        // marking incorrect chars
         if (this.charList[this.inputText.length].status !== "untyped") {
           this.charList[this.inputText.length].status === "marked" ? "marked" : "correct";
         } else {
@@ -100,7 +136,7 @@ export class WordEchoComponent {
         }
         this.inputText += event.key
 
-
+        // setting false character "incorrect" after typing the correct key
         if (this.charList[this.inputText.length - 1].status === "marked") {
           this.charList[this.inputText.length - 1].status = "incorrect"
         }
@@ -129,7 +165,6 @@ export class WordEchoComponent {
     this.incorrectChars = []
     this.charList.forEach(c => c.status = "untyped");
   }
-
 
   replaceSpacesWithOpenBox() {
     this.useSpace = !this.useSpace;

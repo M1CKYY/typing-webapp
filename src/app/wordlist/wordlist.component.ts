@@ -41,7 +41,7 @@ export class WordlistComponent implements OnInit {
 
         this.filterWords();
 
-        this.randomFilteredWords = this.shuffle.getRandomWords(this.filteredWords, 10);
+        this.randomFilteredWords = this.shuffle.getRandomWords(this.filteredWords, 50);
         this.wordsLoaded.emit(this.randomFilteredWords); // Emit the filtered words to the parent
 
       },

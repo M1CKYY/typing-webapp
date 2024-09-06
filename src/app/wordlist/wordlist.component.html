@@ -1,11 +1,11 @@
-<div>
-  <label for="word-length">min. right hand character share (%):</label>
+<div class="">
+  <label class="font-semibold p-5">RHS (%):</label>
   <input
     type="range"
     id="word-length"
     [(ngModel)]="rightHandPercentage"
     (input)="instanciateWords()"
-    min="1"
+    min="0"
     max="100"
     value="50"
   />

@@ -1,59 +1,121 @@
 <link ref="stylesheet" href="word-echo.component.css" />
+
+<!-- Link wordlist component -->
 <app-wordlist (wordsLoaded)="onWordsLoaded($event)"></app-wordlist>
-<div>
-  <button (click)="replaceSpacesWithOpenBox()">Toggle Space</button>
-</div>
-<div class="container">
-  <div class="word">
-    @for(char of charList; track char; let i = $index) { @if
-    (charList[i].wordIndex !== null) {
-    <span
-      [class.nan]="charList[i].status === 'untyped'"
-      [class.incorrect]="charList[i].status === 'incorrect'"
-      [class.correct]="charList[i].status === 'correct'"
-      [ngClass]="{ 'current-char': i === inputText.length }"
-      >{{ charList[i].char }}</span
-    >
-    } @else { @if (charList[i].char === " ") { @if (useSpace) {
-    <span [ngClass]="{ 'current-char': i === inputText.length }">&nbsp;</span>
-    } @else {
-    <span
-      [class.nan]="charList[i].status === 'untyped'"
-      [class.incorrect]="charList[i].status === 'incorrect'"
-      [class.correct]="charList[i].status === 'correct'"
-      [ngClass]="{ 'current-char': i === inputText.length }"
-      >&#9251;</span
-    >
-    } } @else {
-    <span
-      [class.nan]="charList[i].status === 'untyped'"
-      [class.incorrect]="charList[i].status === 'incorrect'"
-      [class.correct]="charList[i].status === 'correct'"
-      [ngClass]="{ 'current-char': i === inputText.length }"
-      >{{ charList[i].char }}</span
-    >
-    }} }
+
+<div class="flex justify-center m-4">
+  <button
+    (keydown)="disableSpacebar($event)"
+    (click)="replaceSpacesWithOpenBox()"
+    class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-l"
+  >
+    Toggle Space
+  </button>
+
+  <button
+    (click)="toggleNumberOptions()"
+    class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-r"
+  >
+    Numbers
+  </button>
+  <div
+    *ngIf="showNumberOptions"
+    class="grid overflow-hidden transition-all duration-100 bg-white border rounded-lg shadow-lg p-4"
+  >
+    <!-- Slider section -->
+    <div class="w-1/2">
+      <label
+        for="rangeSlider"
+        class="block mb-2 text-sm font-medium text-gray-700"
+        >Amount of Numbers</label
+      >
+    </div>
+    <div class="relative" *ngIf="showNumberOptions">
+      <input
+        type="range"
+        class="block text-gray-800 py-2 px-4 rounded-r"
+        min="0"
+        max="10"
+        value="0"
+        [(ngModel)]="numbersAmount"
+        (ngModelChange)="onInputChange()"
+      />
+    </div>
+  </div>
+
+  <button
+    (click)="toggleSpecialCharsOptions()"
+    class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-r"
+  >
+    Special Characters
+  </button>
+  <div
+    *ngIf="showSpecialCharsOptions"
+    class="grid overflow-hidden transition-all duration-100 bg-white border rounded-lg shadow-lg p-4"
+  >
+    <!-- Slider section -->
+    <div class="w-1/2">
+      <label
+        for="rangeSlider"
+        class="block mb-2 text-sm font-medium text-gray-700"
+        >Amount of Special Characters</label
+      >
+    </div>
+    <div class="relative" *ngIf="showSpecialCharsOptions">
+      <input
+        type="range"
+        class="block text-gray-800 py-2 px-4 rounded-r"
+        min="0"
+        max="10"
+        value="0"
+        [(ngModel)]="specialCharsAmount"
+        (ngModelChange)="onInputChange()"
+      />
+    </div>
   </div>
 </div>
-<br />
-<button (click)="toggleDiv()">Show/Hide Debug</button>
-<div *ngIf="showDebug" class="debug">
-  <h3>Debug</h3>
-  <span>inputText: {{ inputText }}</span>
-  <br />
-  <span>word: {{ word }}</span>
-  <br />
-  <span>rawInput: {{ rawInput }}</span>
-  <br />
-  <span>
-    incorrectChars: @for (char of incorrectChars; track char) {
-    {{ char.char }}
-    }</span
-  >
 
-  <input
-    type="hidden"
-    (window:keydown.backspace)="backspace()"
-    (window:keydown.escape)="clear()"
-  />
+<div class="flex justify-center m-6 container mx-auto">
+  <div class="word">
+    @for (char of charList; track char; let i = $index) {
+    <app-char
+      [char]="char"
+      [isCurrent]="i === inputText.length"
+      [useSpace]="useSpace"
+    >
+    </app-char>
+    }
+  </div>
+
+  <br />
+
+  <button
+    class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-r"
+    (click)="toggleDiv()"
+  >
+    Show/Hide Debug
+  </button>
+
+  <div *ngIf="showDebug" class="flex justify-center m-4 debug">
+    <h3>Debug</h3>
+    <span>inputText: {{ inputText }}</span>
+    <br />
+    <span>word: {{ word }}</span>
+    <br />
+    <span>rawInput: {{ rawInput }}</span>
+    <br />
+    <span>
+      incorrectChars: @for (char of incorrectChars; track char) {
+      {{ char.char }}
+      }</span
+    >
+  </div>
+
+  <div>
+    <input
+      type="hidden"
+      (window:keydown.backspace)="backspace()"
+      (window:keydown.escape)="clear()"
+    />
+  </div>
 </div>
