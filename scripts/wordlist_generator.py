@@ -70,7 +70,7 @@ def read_words_from_file(file_path):
 
 
 # Analyze the words
-word_analysis = analyze_words(read_words_from_file('wordlist.txt'))
+word_analysis = analyze_words(read_words_from_file('words_list.txt'))
 
 # Save the analysis to a JSON file
 with open('../src/assets/word_analysis.json', 'w') as f:
